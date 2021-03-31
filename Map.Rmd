@@ -6,25 +6,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-if (!requireNamespace("sf", quietly = TRUE))    
-    install.packages("sf")
-if (!requireNamespace("raster", quietly = TRUE))    
-    install.packages("raster")
-if (!requireNamespace("dplyr", quietly = TRUE))    
-    install.packages("dplyr")
-if (!requireNamespace("spData", quietly = TRUE))    
-    install.packages("spData")
-if (!requireNamespace("tidyverse", quietly = TRUE))    
-    install.packages("tidyverse")
-if (!requireNamespace("lubridate", quietly = TRUE))    
-    install.packages("lubridate")
-if (!requireNamespace("tmap", quietly = TRUE))    
-    install.packages("tmap")
-if (!requireNamespace("leaflet", quietly = TRUE))    
-    install.packages("leaflet")
-if (!requireNamespace("ggplot2", quietly = TRUE))    
-    install.packages("ggplot2")
-
+source("init.R")
 library(dplyr)
 ```
 
@@ -71,5 +53,5 @@ tmap::tm_shape(sf::st_as_sf(fireIncidentsCountsByRegion)) +
   tmap::tm_polygons("count",palette = "BuGn")+
   tmap::tm_borders(lwd = 0.5, lty = 0.1) + 
   tmap::tm_scale_bar(breaks = c(0, 2, 4), text.size = 1) +   
-  tmap::tm_shape(pnts) + tmap::tm_dots(border.col = NA, size = 0.005, clustering = F)
+  tmap::tm_shape(pnts) + tmap::tm_dots(border.col = NA, size = 0.005)
 ```
