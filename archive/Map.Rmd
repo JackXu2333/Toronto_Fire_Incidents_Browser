@@ -1,0 +1,158 @@
+---
+title: "STA313_map"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+if (!requireNamespace("sf", quietly = TRUE))    
+    install.packages("sf")
+if (!requireNamespace("raster", quietly = TRUE))    
+    install.packages("raster")
+if (!requireNamespace("dplyr", quietly = TRUE))    
+    install.packages("dplyr")
+if (!requireNamespace("spData", quietly = TRUE))    
+    install.packages("spData")
+if (!requireNamespace("tidyverse", quietly = TRUE))    
+    install.packages("tidyverse")
+if (!requireNamespace("lubridate", quietly = TRUE))    
+    install.packages("lubridate")
+if (!requireNamespace("tmap", quietly = TRUE))    
+    install.packages("tmap")
+if (!requireNamespace("leaflet", quietly = TRUE))    
+    install.packages("leaflet")
+if (!requireNamespace("ggplot2", quietly = TRUE))    
+    install.packages("ggplot2")
+if (!requireNamespace("stringr", quietly = TRUE))    
+    install.packages("stringr")
+library(stringr)
+library(tidyverse)
+library(dplyr)
+library(tmap)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r add_area, echo=FALSE}
+
+if (!file.exists("Fire_Incidents.Rds")){
+  
+  # Read map and dots of interest
+  map <- readRDS("data/neighbourhood_shapefile.Rds")
+  fireIncidents <- read.csv("data/Fire_Incidents.csv", header=T, stringsAsFactors = T)
+  pntf <- data.frame(X = fireIncidents$Latitude, Y = fireIncidents$Longitude,
+                     X_id = fireIncidents$X_id) %>% na.omit()
+  
+  pnts_sf <- sf::st_as_sf(pntf, coords = c('Y', 'X'), crs = sf::st_crs(map))
+  
+  pnts <- pnts_sf %>% dplyr::mutate(
+    intersection = as.integer(sf::st_intersects(pnts_sf$geometry, map))
+    , AREA_NAME = if_else(is.na(intersection), '', map$AREA_NAME[intersection])
+  ) 
+  
+  fireIncidents <- left_join(fireIncidents, pnts, by="X_id")
+  
+  # save as RDS for quicker access
+  saveRDS(fireIncidents, "data/Fire_Incidents.Rds")
+  
+} 
+
+fireIncidents <- readRDS("data/Fire_Incidents.Rds")
+```
+
+```{r map}
+
+
+fireIncidentsCounts <- pnts %>% as.data.frame %>% dplyr::group_by(AREA_NAME) %>% dplyr::summarise(count=n()) %>% subset(AREA_NAME != "")
+fireIncidentsCountsByRegion <- left_join(fireIncidentsCounts, map, by="AREA_NAME") 
+
+tmap::tmap_mode("view")
+tmap::tm_shape(sf::st_as_sf(fireIncidentsCountsByRegion)) + 
+  tmap::tm_polygons("count",palette = "BuGn")+
+  tmap::tm_borders(lwd = 0.5, lty = 0.1) + 
+  tmap::tm_scale_bar(breaks = c(0, 2, 4), text.size = 1) +   
+  tmap::tm_shape(pnts) + tmap::tm_dots(border.col = NA, size = 0.005, clustering = F)
+```
+
+```{r map}
+cleanFireIncident <- read.csv("data/clean data Fire_Incidents.csv", header=T, stringsAsFactors = T)
+firestation <- read.csv("data/fire-station-locations.csv", header=T, stringsAsFactors = T)
+
+cleanFireIncident <- cleanFireIncident%>%
+  select(X, geometry, area, intersection)%>%
+  na.omit()
+
+
+cleanFireIncident$geometry <- as.character(cleanFireIncident$geometry)
+cleanFireIncident$lon <- as.numeric(sapply(strsplit(cleanFireIncident$geometry, '[(,)]'), "[[", 2))
+cleanFireIncident$lat <- as.numeric(sapply(strsplit(cleanFireIncident$geometry, '[(,)]'), "[[", 3))
+pointIncident <- sf::st_as_sf(cleanFireIncident, coords = c('lon', 'lat'), crs = sf::st_crs(map))
+
+firestation$geometry <- as.character(firestation$geometry)
+firestation$lon <- as.numeric(sapply(strsplit(firestation$geometry, '[(,)]'), "[[", 2))
+firestation$lat <- as.numeric(sapply(strsplit(firestation$geometry, '[(,)]'), "[[", 3))
+pointstation <- sf::st_as_sf(firestation, coords = c('lon', 'lat'), crs = sf::st_crs(map))
+
+tmap::tmap_mode("view")
+tmap::tm_shape(sf::st_as_sf(fireIncidentsCountsByRegion)) + 
+  tmap::tm_polygons("count",palette = "BuGn")+
+  tmap::tm_borders(lwd = 0.5, lty = 0.1) + 
+  tmap::tm_scale_bar(breaks = c(0, 2, 4), text.size = 1) +   
+  tmap::tm_shape(sf::st_as_sf(pointIncident)) + tmap::tm_dots(col = 'black', size = 0.01) +
+  tmap::tm_shape(sf::st_as_sf(pointstation)) + tmap::tm_dots(col = 'red', size = 0.04, title = "Fire Stations")
+```
+
+
+
+
+
+
+
+
+```{r}
+fireIncidentsPlot <- fireIncidents%>%
+  select(X_id, TFS_Alarm_Time, AREA_NAME)%>%
+  mutate_if(is.factor, as.character)%>%
+  na.omit
+
+fireIncidentsPlot$TFS_Alarm_Time = substr(fireIncidentsPlot$TFS_Alarm_Time,1,nchar(fireIncidentsPlot$TFS_Alarm_Time) - 11)
+
+fireIncidentsPlot$TFS_Alarm_Time <- paste(fireIncidentsPlot$TFS_Alarm_Time, '01', sep="")
+
+firescatterPlot <- fireIncidentsPlot%>%
+  dplyr::group_by(AREA_NAME, TFS_Alarm_Time)%>%
+  dplyr::summarise(count = n(), TFS_Alarm_Time)%>%
+  subset(AREA_NAME != "")
+
+
+
+firescatterPlot <- firescatterPlot%>%
+  mutate(TFS_Alarm_Time = as.character(TFS_Alarm_Time))
+
+firescatterPlot$TFS_Alarm_Time = as.Date(firescatterPlot$TFS_Alarm_Time)
+
+ggplot(firescatterPlot, aes(x = TFS_Alarm_Time, y = count, fill = AREA_NAME)) + geom_point(stat="identity") +
+  theme(legend.position="none") +
+  guides(fill=guide_legend(nrow=15, byrow=TRUE)) + 
+  ggtitle("Relationship between Time and Number of Fire Incidents in Neiborhood by Month") +
+  xlab("Fire Incident by Time") + ylab("Count by Neigborhood")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

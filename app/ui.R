@@ -1,5 +1,6 @@
 source("../init.R")
 library(shiny)
+library(shinyWidgets)
 library(shinyBS)
 library(dplyr)
 library(leaflet)
@@ -26,66 +27,64 @@ shinyUI(
                 h2("City of Toronto fire incidents browser"),
                 
                 # slider for selecting type of fire
-                selectInput("Fire_Type",
-                                "Select fire type",
-                                choices = list("Fire" = 1, "Explosion" = 2, 
-                                               "Outdoor Fire" = 3, "All" = 4), selected = 4),
-                bsTooltip(id = "Fire_Type", title = "Type of fire recorded by the firefighters", 
-                             placement = "bottom", trigger = "hover", options = NULL),
+                pickerInput("Fire_Type",
+                            label = h4("Select fire type ", bsButton("s1", class = "info",  label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                                choices = fire_Type_Choice, multiple = TRUE, selected = 1,
+                                options = list(`actions-box` = TRUE)),
+                bsPopover(id = "s1", title = "Casualties", placement = "top", content =  "Working on it..."),
 
                     
                 # slider for selecting the size of fire
-                selectInput("Fire_Size",
-                                       "Select fire size",
-                                       choices = list("Extinguished" = 1, "Small" = 2, 
-                                                      "Medium" = 3, "Large" = 4, "All" = 5),selected = 5),
-                bsTooltip(id = "Fire_Size", title = "Size of fire when firefighters arrrived at scene", 
-                              placement = "bottom", trigger = "hover", options = NULL),
+                pickerInput("Fire_Size",
+                            label = h4("Select fire size", bsButton("s2", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                            choices = fire_Size_Choice, multiple = TRUE, selected = 1,
+                            options = list(`actions-box` = TRUE)),
+                bsPopover(id = "s2", title = "Casualties",placement = "top",content =  "Working on it..."),
 
                     
-                # slider for selecting the orgin of fire
-                selectInput("Area_Origin",
-                                "Select estimated orgin of fire",
-                                choices = list("Cooking" = 1, "Engine" = 2, 
-                                               "Trash Storage" = 3, "Parch or Balcony" = 4,
-                                               "Others" = 5, "All" = 6), selected = 6),
-                bsTooltip(id = "Area_Origin", title = "The estimated orgin of fire", 
-                              placement = "bottom", trigger = "hover", options = NULL),
-                    
+                # slider for selecting the origin of fire
+                pickerInput("Area_Origin",
+                            label = h4("Orgin of fire", bsButton("s3", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                            choices = area_Origin_Choice, multiple = TRUE, selected = 1,
+                            options = list(`actions-box` = TRUE)),
+                bsPopover(id = "s3", title = "Casualties", placement = "top",content =  "Working on it..."),
+
                 # slider for selecting financial loss
-                shinyWidgets::sliderTextInput("Financial_Loss",
-                                "Select range of financial loss",
+                sliderTextInput("Financial_Loss",
+                                label = h4("Financial loss", bsButton("s4", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 choices=c(0, 10, 100, 1000, 10000,100000, 1000000),
                                 selected = c(10,10000), grid = T),
-                bsTooltip(id = "Financial_Loss", title = "The estimated amount of financial loss", 
-                              placement = "bottom", trigger = "hover", options = NULL),
+                bsPopover(id = "s4", title = "Financial Loss",placement = "top", content =  "Working on it..."),
                     
                 # slider for selecting number of casualties
                 sliderInput("Casualties",
-                                "Number of civillian injured or dead",
+                            label = h4("Casualties", bsButton("s5", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 min = 0, max = 15,
                                 value = 0),
-                bsTooltip(id = "Casualties", title = "Number of civillian injured or dead", 
-                              placement = "bottom", trigger = "hover", options = NULL),
+                bsPopover(id = "s5", title = "Casualties", placement = "top",content =  "Working on it..."),
                     
                 # slider for selecting number of personnel
                 shinyWidgets::sliderTextInput("Num_Personnel",
-                                "Number of firefighters arrivaled at the scene",
+                                label = h4("firefighters at scene", bsButton("s6", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 choices=c(0, 5, 10, 20, 35, 50, 100),
                                 selected = c(0,10), grid = T),
-                bsTooltip(id = "Num_Personnel", title = "Number of firefighters arrivaled at the scene", 
-                              placement = "bottom", trigger = "hover", options = NULL),
+                bsPopover(id = "s6", title = "Casualties", placement = "top",content =  "Working on it..."),
                 
                 # Date input
-                dateRangeInput("Time","Select time period"),
-                bsTooltip(id = "Time", title = "Incidents that occurred during this period of time", 
-                              placement = "bottom", trigger = "hover", options = NULL)
+                dateRangeInput("Time",
+                               label = h4("Select time period", bsButton("s7", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                               "2011-01-01", "2019-07-01"),
+                bsPopover(id = "s7", title = "Casualties", placement = "top", content =  "Working on it..."),
+                
+                # Refresh
+                actionButton("Refresh", "Click to refresh"),
+                actionButton("Zoom_Out", "Return to full view")
         
                 ),
             
             # Sidebars with scatter plot
             absolutePanel(id = "scatterplot", class = "panel panel-default",
-                          fixed = TRUE, draggable = TRUE, top = "auto", left = 20, right = "auto", bottom = 20,
+                          fixed = TRUE, top = "auto", left = 20, right = "auto", bottom = 20,
                           width = "auto", height = "auto",
                           
                           plotOutput("scatterplot", height = 300,  width = 450))

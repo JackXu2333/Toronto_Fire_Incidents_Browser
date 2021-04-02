@@ -1,0 +1,110 @@
+---
+title: "STA313 Final Project- Mock"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+source("init.R")
+
+library(tidyverse)
+library(lubridate)
+
+fire_incidents <- read.csv("data/Fire_Incidents.csv", header=T, stringsAsFactors = T)
+
+```
+
+
+```{r fire_incidents}
+
+# remove extreme cases
+fire_incidents <- fire_incidents %>% filter(Estimated_Dollar_Loss < 1000000 & Number_of_responding_personnel != 1275) %>%
+  filter(Area_of_Origin != "" & Status_of_Fire_On_Arrival != "" & !is.na(Status_of_Fire_On_Arrival))
+
+## Status of fire on arrival
+fire_incidents <- fire_incidents %>% mutate(Fire_Size_Case = case_when(
+  Status_of_Fire_On_Arrival == "1 - Fire extinguished prior to arrival" ~ fire_Size_Table[1],
+  Status_of_Fire_On_Arrival == "2 - Fire with no evidence from street" ~ fire_Size_Table[2],
+  Status_of_Fire_On_Arrival == "3 - Fire with smoke showing only - including vehicle, outdoor fires" ~ fire_Size_Table[3],
+  Status_of_Fire_On_Arrival == "4 - Flames showing from small area (one storey or less, part of a vehicle, outdoor)" ~ fire_Size_Table[3],
+  Status_of_Fire_On_Arrival == "5 - Flames showing from large area (more than one storey, large area outdoors)" ~ fire_Size_Table[4],
+  Status_of_Fire_On_Arrival == "7 - Fully involved (total structure, vehicle, spreading outdoor fire)" ~ fire_Size_Table[4],
+  Status_of_Fire_On_Arrival == "8 - Exposure involved" ~ fire_Size_Table[4],
+  Status_of_Fire_On_Arrival == "9 - Unclassified" ~ fire_Size_Table[5],
+)) %>% mutate(Fire_Size_Case = factor(Fire_Size_Case, levels = fire_Size_Table))
+
+## Type of fire on arrival
+fire_incidents <- fire_incidents %>% mutate(Fire_Type_Case = case_when(
+  Final_Incident_Type == "01 - Fire" ~ fire_Type_Table[1],
+  Final_Incident_Type == "02 - Explosion (including during Fire, excluding Codes 3 & 11-13)" ~ fire_Type_Table[2]
+)) %>% mutate(Fire_Type_Case = factor(Fire_Type_Case, levels = fire_Type_Table))
+
+## Type of fire on arrival
+fire_incidents <- fire_incidents %>% mutate(Area_Orgin_Case = case_when(
+  Area_of_Origin == "24 - Cooking Area or Kitchen" ~ area_Origin_Table[1],
+  Area_of_Origin == "44 - Trash, Rubbish Storage (inc garbage chute room, garbage/industri" ~ area_Origin_Table[2],
+  Area_of_Origin == "64 - Porch or Balcony" ~ area_Origin_Table[3],
+  Area_of_Origin == "81 - Engine Area" ~ area_Origin_Table[4],
+  TRUE ~ area_Origin_Table[5]
+)) %>% mutate(Area_Orgin_Case = factor(Area_Orgin_Case, levels = area_Origin_Table))
+
+# Read map and dots of interest
+map <- readRDS("data/neighbourhood_shapefile.Rds")
+pntf <- data.frame(X = fire_incidents$Latitude, Y = fire_incidents$Longitude,
+                     X_id = fire_incidents$X_id) %>% na.omit() 
+  
+pnts_sf <- sf::st_as_sf(pntf, coords = c('Y', 'X'), crs = sf::st_crs(map))
+  
+pnts <- pnts_sf %>% dplyr::mutate(
+    intersection = as.integer(sf::st_intersects(pnts_sf$geometry, map))
+    , Neighborhood = if_else(is.na(intersection), '', map$AREA_NAME[intersection])
+) 
+  
+fire_incidents <- left_join(fire_incidents, pnts, by="X_id") %>% filter(!is.na(Neighborhood)) %>% 
+  filter(Neighborhood != "")
+
+# date manipulation
+fire_incidents$TFS_Alarm_Date <- gsub("T.*$", "", fire_incidents$TFS_Alarm_Time) %>% as.Date()
+fire_incidents$TFS_Alarm_Time <- gsub(".*T", "", fire_incidents$TFS_Alarm_Time) 
+fire_incidents$TFS_Alarm_Month <- floor_date(fire_incidents$TFS_Alarm_Date, "month")
+fire_incidents$TFS_Alarm_Year <- floor_date(fire_incidents$TFS_Alarm_Date, "year")
+
+# save as RDS for quicker access
+saveRDS(fire_incidents, "data/Cleaned_Fire_Incidents.Rds")
+
+```
+
+```{r fire_incidents_trim}
+
+remain <- c("X_id","Area_of_Origin","Neighborhood", "geometry", "TFS_Alarm_Year", "TFS_Alarm_Month", 
+            "TFS_Alarm_Date", "Area_Orgin_Case", "Fire_Type_Case", "Fire_Size_Case",
+            "Status_of_Fire_On_Arrival", "Final_Incident_Type",
+            "Number_of_responding_personnel", "Estimated_Dollar_Loss",
+            "Latitude", "Longitude", "Civilian_Casualties")
+
+fire_incidents_trimmed <- fire_incidents[, names(fire_incidents) %in% remain]
+
+saveRDS(fire_incidents_trimmed, "data/Trimmed_Fire_Incidents.Rds")
+
+```
+
+```{r fire_station}
+
+fireStation <- read.csv("data/Fire_Station_Locations.csv", header = T)
+
+saveRDS(fireStation, "data/Trimmed_Fire_Station.Rds")
+
+```
+
+```{r neighbourhood}
+
+neighbourhood_Shape <- readRDS("data/neighbourhood_shapefile.Rds")
+fire_incidents_summary <- fire_incidents_trimmed %>% group_by(Neighborhood) %>%
+  summarise(num_incidents = n())
+
+neighbourhoods <- merge(neighbourhood_Shape, fire_incidents_summary, by.x = "AREA_NAME", by.y="Neighborhood")
+
+saveRDS(neighbourhoods, "data/neighbourhoods_info.Rds")
+
+```
