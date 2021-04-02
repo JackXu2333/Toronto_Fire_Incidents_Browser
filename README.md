@@ -53,7 +53,7 @@ do it in the command line via:
 
     $ git clone https://github.com/JackXu2333/STA313_Final_Project.git
 
-## About Us
+## About Us <img src="app/www/logo.png" width="25" height="auto">
 
 Hi there, it’s the “Fancy Thoughts Squad”, students from the University
 of Toronto teaming up for the STA313 final assignment. Hope anyone who
