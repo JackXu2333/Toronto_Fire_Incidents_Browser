@@ -1,7 +1,7 @@
 # Read fire Incidents file
-fire_Incidents <- readRDS("../data/Trimmed_Fire_Incidents.Rds")
-fire_Stations <- readRDS("../data/Trimmed_Fire_Station.Rds")
-neighbourhood_Shape <- readRDS("../data/neighbourhoods_info.Rds")
+fire_Incidents <- readRDS("data/Trimmed_Fire_Incidents.Rds")
+fire_Stations <- readRDS("data/Trimmed_Fire_Station.Rds")
+neighbourhood_Shape <- readRDS("data/neighbourhoods_info.Rds")
 
 
 shinyServer(function(input, output) {

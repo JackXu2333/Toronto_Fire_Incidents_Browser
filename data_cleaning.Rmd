@@ -85,13 +85,13 @@ remain <- c("X_id","Area_of_Origin","Neighborhood", "geometry", "TFS_Alarm_Year"
 
 fire_incidents_trimmed <- fire_incidents[, names(fire_incidents) %in% remain]
 
-saveRDS(fire_incidents_trimmed, "data/Trimmed_Fire_Incidents.Rds")
+saveRDS(fire_incidents_trimmed, "app/data/Trimmed_Fire_Incidents.Rds")
 
 ```
 
 ```{r fire_station}
 
-fireStation <- read.csv("data/Fire_Station_Locations.csv", header = T)
+fireStation <- read.csv("app/data/Fire_Station_Locations.csv", header = T)
 
 saveRDS(fireStation, "data/Trimmed_Fire_Station.Rds")
 
@@ -99,7 +99,7 @@ saveRDS(fireStation, "data/Trimmed_Fire_Station.Rds")
 
 ```{r neighbourhood}
 
-neighbourhood_Shape <- readRDS("data/neighbourhood_shapefile.Rds")
+neighbourhood_Shape <- readRDS("app/data/neighbourhood_shapefile.Rds")
 fire_incidents_summary <- fire_incidents_trimmed %>% group_by(Neighborhood) %>%
   summarise(num_incidents = n())
 
