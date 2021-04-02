@@ -9,7 +9,7 @@ library(ggplot2)
 # Define UI for application that draws a histogram
 shinyUI(
     
-    navbarPage("Fancy Thoughts", id="nav",
+    navbarPage(div(img(id = "logo", src="logo.png"), "Fancy Thoughts"), id="nav", 
     
         tabPanel("Interactive map",
             div(class="outer",
