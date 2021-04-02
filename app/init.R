@@ -36,3 +36,11 @@ names(fire_Type_Choice) <- fire_Type_Table
 
 area_Origin_Choice <- seq(1:length(area_Origin_Table))
 names(area_Origin_Choice) <- area_Origin_Table
+
+intro_Text <- "The purpose of this visualization is to inform the city planners and the fire department about details of fire incidents in the City of Toronto. 
+More specifically, this visualization is designed to help city planners and the fire department to decide where additional fire stations should be built within the city, 
+to reduce the number of fire incidents or minimize loss from such. The data that are used in the visualization is from The City of Toronto’s Open Data Portal. 
+The datasets that we used included fire incidents data, fire station locations, and neighborhood profiles (Toronto Census 2016). There are two parts in the visualization: 
+1) a map on the left side and 3) a scatterplot on the right side. When the website is first opened, an info (information) box will pop up and hover over the scatterplot, 
+in which highlights in the visualization will be stated, and readers can close it whenever so the scatterplot would be visible again. If the readers are interested in reading 
+it again, the reader can click on a small button on the top right corner of the website to open the info box again."

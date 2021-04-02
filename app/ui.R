@@ -24,7 +24,7 @@ shinyUI(
                 top = 20, left = "auto", right = 20, bottom = "auto",
                 width = 330, height = "auto",
                 
-                h2("City of Toronto fire incidents browser"),
+                h2("City of Toronto fire incidents browser", bsButton("s0",  label = "", icon = icon("info"), size = "extra-small") ),
                 
                 # slider for selecting type of fire
                 pickerInput("Fire_Type",
