@@ -37,10 +37,27 @@ names(fire_Type_Choice) <- fire_Type_Table
 area_Origin_Choice <- seq(1:length(area_Origin_Table))
 names(area_Origin_Choice) <- area_Origin_Table
 
-intro <- "The purpose of this visualization is to inform the city planners and the fire department about details of fire incidents in the City of Toronto. 
-More specifically, this visualization is designed to help city planners and the fire department to decide where additional fire stations should be built within the city, 
-to reduce the number of fire incidents or minimize loss from such. The data that are used in the visualization is from The City of Toronto’s Open Data Portal. 
-The datasets that we used included fire incidents data, fire station locations, and neighborhood profiles (Toronto Census 2016). There are two parts in the visualization: 
-1) a map on the left side and 3) a scatterplot on the right side. When the website is first opened, an info (information) box will pop up and hover over the scatterplot, 
-in which highlights in the visualization will be stated, and readers can close it whenever so the scatterplot would be visible again. If the readers are interested in reading 
-it again, the reader can click on a small button on the top right corner of the website to open the info box again."
+intro_Text <- "Welcome to our project, “Fire Incident Browser in the City of Toronto and its Surrounding Neighborhoods”. 
+We are the Fancy Thoughts Squad.] This project aims to inform the city planners and the fire department about details 
+of fire incidents in the City of Toronto. More specifically, this visualization is designed to help city planners and 
+the fire department to decide where additional fire stations should be built within the city, to reduce the number of fire incidents or minimize loss from such."
+
+fire_Type_Info <- "The type of fire that was recorded by the firefighters first arrived at the scene including Fire, Explosion and No Loss Outdoor Fire."
+
+fire_Size_Info <- paste("The size of fire that was recorded by the firefighters first arrived at the scene",
+"1. Extinguished: fire was extinguished prior to arrival",
+"2. Small: there was no evidence of fire from the street",
+"3. Medium: fire with smoke only or flames showing from a small area",
+"4. Large: flames were showing from a large area or that and explosion was involved", sep = "<br>")
+
+origin_of_Fire_Info <-"The most common origins of fire, Other includes Bedroom, Living Room etc."
+
+financial_Loss_Info <- "The estimated amount of dollar loss"
+
+casualties_Info <- "Civilian casualties observed at scene, including both injured and dead"
+
+firefighters_Info <- "Number of Firefighters responded and arrived at the scene"
+
+time_Period_Info <- "Time stamps of fire occurrence"
+
+

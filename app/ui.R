@@ -28,18 +28,18 @@ shinyUI(
                 
                 # slider for selecting type of fire
                 pickerInput("Fire_Type",
-                            label = h4("Select fire type ", bsButton("s1", class = "info",  label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                            label = h4("Fire type ", bsButton("s1", class = "info",  label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 choices = fire_Type_Choice, multiple = TRUE, selected = 1,
                                 options = list(`actions-box` = TRUE)),
-                bsPopover(id = "s1", title = "Casualties", placement = "top", content =  "Working on it..."),
+                bsPopover(id = "s1", title = "Fire Type", placement = "left", content =  fire_Type_Info),
 
                     
                 # slider for selecting the size of fire
                 pickerInput("Fire_Size",
-                            label = h4("Select fire size", bsButton("s2", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                            label = h4("Fire size", bsButton("s2", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                             choices = fire_Size_Choice, multiple = TRUE, selected = 1,
                             options = list(`actions-box` = TRUE)),
-                bsPopover(id = "s2", title = "Casualties",placement = "top",content =  "Working on it..."),
+                bsPopover(id = "s2", title = "Fire Size",placement = "left",content =  fire_Size_Info),
 
                     
                 # slider for selecting the origin of fire
@@ -47,34 +47,34 @@ shinyUI(
                             label = h4("Orgin of fire", bsButton("s3", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                             choices = area_Origin_Choice, multiple = TRUE, selected = 1,
                             options = list(`actions-box` = TRUE)),
-                bsPopover(id = "s3", title = "Casualties", placement = "top",content =  "Working on it..."),
+                bsPopover(id = "s3", title = "Orgin of Fire", placement = "top",content =  origin_of_Fire_Info),
 
                 # slider for selecting financial loss
                 sliderTextInput("Financial_Loss",
                                 label = h4("Financial loss", bsButton("s4", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 choices=c(0, 10, 100, 1000, 10000,100000, 1000000),
                                 selected = c(10,10000), grid = T),
-                bsPopover(id = "s4", title = "Financial Loss",placement = "top", content =  "Working on it..."),
+                bsPopover(id = "s4", title = "Financial Loss",placement = "top", content =  financial_Loss_Info),
                     
                 # slider for selecting number of casualties
                 sliderInput("Casualties",
                             label = h4("Casualties", bsButton("s5", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 min = 0, max = 15,
                                 value = 0),
-                bsPopover(id = "s5", title = "Casualties", placement = "top",content =  "Working on it..."),
+                bsPopover(id = "s5", title = "Casualties", placement = "top",content =  casualties_Info),
                     
                 # slider for selecting number of personnel
                 shinyWidgets::sliderTextInput("Num_Personnel",
-                                label = h4("firefighters at scene", bsButton("s6", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                                label = h4("Number of firefighters at scene", bsButton("s6", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 choices=c(0, 5, 10, 20, 35, 50, 100),
                                 selected = c(0,10), grid = T),
-                bsPopover(id = "s6", title = "Casualties", placement = "top",content =  "Working on it..."),
+                bsPopover(id = "s6", title = "Number of firefighters at scene", placement = "left",content =  firefighters_Info),
                 
                 # Date input
                 dateRangeInput("Time",
-                               label = h4("Select time period", bsButton("s7", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                               label = h4("Time period", bsButton("s7", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                "2011-01-01", "2019-07-01"),
-                bsPopover(id = "s7", title = "Casualties", placement = "top", content =  "Working on it..."),
+                bsPopover(id = "s7", title = "Time period", placement = "top", content =  time_Period_Info),
                 
                 # Refresh
                 actionButton("Refresh", "Click to refresh"),

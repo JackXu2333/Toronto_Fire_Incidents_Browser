@@ -11,7 +11,7 @@ source("init.R")
 library(tidyverse)
 library(lubridate)
 
-fire_incidents <- read.csv("data/Fire_Incidents.csv", header=T, stringsAsFactors = T)
+fire_incidents <- read.csv("data/Fire_Incidents.csv", header=T, stringsAsFactors = T)   
 
 ```
 

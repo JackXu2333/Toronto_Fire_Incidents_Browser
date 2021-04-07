@@ -33,9 +33,7 @@ shinyServer(function(input, output) {
             setView(lng = -79.24, lat = 43.74, zoom = 11)  
     })
     
-    # This observer is responsible for maintaining the circles and legend,
-    # according to the variables the user has chosen to map to color and size.
-    observeEvent(input$Refresh,{
+    refreshMap <- function(){
         
         Fire_Type <- input$Fire_Type %>% as.integer()
         Fire_Size <- input$Fire_Size %>% as.integer()
@@ -62,19 +60,27 @@ shinyServer(function(input, output) {
         colorData <- fire_Incidents_Filtered$Fire_Size_Case
         pal <- colorFactor("YlOrRd", colorData)
         colorData_nbh <- neighbourhood_Shape$num_incidents
-        pal_nbh <- colorNumeric("Greys", colorData_nbh)
+        pal_nbh <- colorNumeric(c("#D7D8C9", "#57523E"), colorData_nbh)
         
         log_Estimated <- log(fire_Incidents_Filtered$Estimated_Dollar_Loss) * 0.8
         
-        leafletProxy("map", data = fire_Incidents_Filtered) %>% clearShapes() %>%
+        leafletProxy("map", data = fire_Incidents_Filtered) %>% clearShapes() %>% clearMarkers() %>%
             addPolygons(data = neighbourhood_Shape, 
-                        stroke = T, color = "Grey", weight = 1 ,opacity = .2, 
+                        stroke = F, color = "Grey", weight = 1 ,opacity = .2, 
                         layerId=~AREA_ID,
-                        fillOpacity = 0.2, fillColor=pal_nbh(colorData_nbh)) %>%
+                        fillOpacity = 0.3, fillColor=pal_nbh(colorData_nbh)) %>%
             addMarkers(fire_Stations$Longitude, fire_Stations$Latitude, layerId=~fire_Stations$ID,
                        icon=makeIcon("icons/svg/008-firefighter helmet.svg", iconWidth = 25, iconHeight = 25)) %>%
             addCircleMarkers(~Longitude, ~Latitude, radius=log_Estimated, layerId=~X_id,
-                       stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData)) 
+                             stroke=FALSE, fillOpacity=0.4, fillColor=pal(colorData))
+    }
+    
+    # This observer is responsible for maintaining the circles and legend,
+    # according to the variables the user has chosen to map to color and size.
+    observeEvent(input$Refresh,{
+        
+        refreshMap()
+         
     })
     
     # Reset the view of the map
@@ -82,7 +88,9 @@ shinyServer(function(input, output) {
         
         # Reset view
         leafletProxy("map") %>% 
-            setView(lng = -79.24, lat = 43.74, zoom = 11)  
+            setView(lng = -79.24, lat = 43.74, zoom = 11) 
+        
+        refreshMap()
         
         # Reset neighborhood
         global_varible$current_neibourhood <- ""
@@ -122,16 +130,27 @@ shinyServer(function(input, output) {
     })
     
     # Show a popup at the given location
-    showZipcodePopup <- function(id, lat, lng) { 
+    showNeibourhoodPopup <- function(neigbourhoodSelected, id, lat, lng) { 
         
-        if (id > 2480000) {
-            content <- as.character(tagList(
-                tags$h4("Neibourhood NO.", as.integer(id)),
-                tags$strong(HTML(sprintf("Location: %s, %s",
-                                         lat, lng
-                ))), tags$br()
-            ))
-        } else if (id > 1350000) {
+        content <- as.character(tagList(
+            tags$h4("Neibourhood:", neigbourhoodSelected$AREA_NAME),
+            tags$strong(HTML(sprintf("Location: %s, %s",lat, lng))), tags$br(),
+            sprintf("Current population: %s",lat), tags$br(),
+            sprintf("Total Area: %s sqft",lat), tags$br(),
+            sprintf("Population density: %s sqft",lat), tags$br(),
+            sprintf("Number of fire stations: %s ",lat), tags$br(),
+            sprintf("Total of incidents since 2011: %s",lat)
+        ))
+        
+        # set popups
+        leafletProxy("map") %>% addPopups(lng, lat, content, layerId = id)
+    
+    }
+    
+    # Show a popup at the given location
+    showPointPopup <- function(id, lat, lng) { 
+        
+        if (id > 1350000) {
             content <- as.character(tagList(
                 tags$h4("Fire incident NO.", as.integer(id)),
                 tags$strong(HTML(sprintf("Location: %s, %s",
@@ -149,7 +168,7 @@ shinyServer(function(input, output) {
         
         # set popups
         leafletProxy("map") %>% addPopups(lng, lat, content, layerId = id)
-    
+        
     }
     
     # When map is clicked, show a popup with city info
@@ -160,16 +179,20 @@ shinyServer(function(input, output) {
             return()
         
         neigbourhoodSelected <- neighbourhood_Shape[which(neighbourhood_Shape$AREA_ID == event$id),]
+        
         # Add current filtering to the gv
         global_varible$current_neibourhood <- neigbourhoodSelected$AREA_NAME
+        
+        neigbourhoodSelected$AREA_ID <- neigbourhoodSelected$AREA_ID * 100
             
         #Find binding box and change location
-        neigbourhoodSelected <- neigbourhoodSelected$geometry %>% sf::st_bbox()
-        leafletProxy("map") %>% flyToBounds(as.numeric(neigbourhoodSelected$xmin), as.numeric(neigbourhoodSelected$ymin), 
-                                            as.numeric(neigbourhoodSelected$xmax), as.numeric(neigbourhoodSelected$ymax))
+        #Add highlight
+        neigbourhoodSelectedBBox <- neigbourhoodSelected$geometry %>% sf::st_bbox()
+        leafletProxy("map") %>% flyToBounds(as.numeric(neigbourhoodSelectedBBox$xmin), as.numeric(neigbourhoodSelectedBBox$ymin), 
+                                            as.numeric(neigbourhoodSelectedBBox$xmax), as.numeric(neigbourhoodSelectedBBox$ymax))
             
         isolate({
-            showZipcodePopup(event$id, event$lat, event$lng)
+            showNeibourhoodPopup(neigbourhoodSelected, event$id, event$lat, event$lng)
         })
             
     })
@@ -185,7 +208,7 @@ shinyServer(function(input, output) {
         
         
         isolate({
-            showZipcodePopup(event$id, event$lat, event$lng)
+            showPointPopup(event$id, event$lat, event$lng)
         })
         
     })
