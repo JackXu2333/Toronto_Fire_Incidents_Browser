@@ -33,6 +33,13 @@ which are the neighborhoods with a strong positive trend on the
 scatterplot. Then they can follow the order (trend) and build in other
 neighborhoods.
 
+Our primary data source includes:
+
+  - [Statistics
+    Canada](https://www12.statcan.gc.ca/census-recensement/2016/rt-td/population-eng.cfm)
+  - [Open Data
+    Toronto](https://www.toronto.ca/city-government/data-research-maps/open-data/)
+
 ## Development plan
 
 Technology/Libraries to Be Used: In our development, we will be building
@@ -46,10 +53,12 @@ everything.
 
 ## Installation
 
-For now, the easiest way to run the **fire incidents shiny app** is
-pulling the [github
-repo](https://github.com/JackXu2333/STA313_Final_Project), or you could
-do it in the command line via:
+The interactive web app can be visit via
+[shiny.io](https://sijiexu.shinyapps.io/City_of_Toronto_fire_incidents_browser/)
+
+Alternatively, you could run the **fire incidents shiny app** is pulling
+the [github repo](https://github.com/JackXu2333/STA313_Final_Project),
+or with command line:
 
     $ git clone https://github.com/JackXu2333/STA313_Final_Project.git
 
@@ -58,3 +67,9 @@ do it in the command line via:
 Hi there, it’s the “Fancy Thoughts Squad”, students from the University
 of Toronto teaming up for the STA313 final assignment. Hope anyone who
 read this will have a “fancy” day (?)… I guess?
+
+> *Toronto Fire Incidents (2011-2019) (c) by Sijie Xu* *Toronto Fire
+> Incidents (2011-2019) is licensed under a Creative Commons Attribution
+> 4.0 International License.* *You should have received a copy of the
+> license along with this work. If not, see
+> <http://creativecommons.org/licenses/by/4.0/>.*

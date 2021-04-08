@@ -53,7 +53,7 @@ shinyUI(
                 sliderTextInput("Financial_Loss",
                                 label = h4("Financial loss", bsButton("s4", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                 choices=c(0, 10, 100, 1000, 10000,100000, 1000000),
-                                selected = c(10,10000), grid = T),
+                                selected = c(0,10000), grid = T),
                 bsPopover(id = "s4", title = "Financial Loss",placement = "top", content =  financial_Loss_Info),
                     
                 # slider for selecting number of casualties
