@@ -6,12 +6,12 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-source("init.R")
+source("app/init.R")
 
 library(tidyverse)
 library(lubridate)
 
-fire_incidents <- read.csv("data/Fire_Incidents.csv", header=T, stringsAsFactors = T)   
+fire_incidents <- read.csv("app/data/Fire_Incidents.csv", header=T, stringsAsFactors = T)   
 
 ```
 
@@ -50,7 +50,7 @@ fire_incidents <- fire_incidents %>% mutate(Area_Orgin_Case = case_when(
 )) %>% mutate(Area_Orgin_Case = factor(Area_Orgin_Case, levels = area_Origin_Table))
 
 # Read map and dots of interest
-map <- readRDS("data/neighbourhood_shapefile.Rds")
+map <- readRDS("app/data/neighbourhood_shapefile.Rds")
 pntf <- data.frame(X = fire_incidents$Latitude, Y = fire_incidents$Longitude,
                      X_id = fire_incidents$X_id) %>% na.omit() 
   
@@ -71,13 +71,13 @@ fire_incidents$TFS_Alarm_Month <- floor_date(fire_incidents$TFS_Alarm_Date, "mon
 fire_incidents$TFS_Alarm_Year <- floor_date(fire_incidents$TFS_Alarm_Date, "year")
 
 # save as RDS for quicker access
-saveRDS(fire_incidents, "data/Cleaned_Fire_Incidents.Rds")
+saveRDS(fire_incidents, "app/data/Cleaned_Fire_Incidents.Rds")
 
 ```
 
 ```{r fire_incidents_trim}
 
-remain <- c("X_id","Area_of_Origin","Neighborhood", "geometry", "TFS_Alarm_Year", "TFS_Alarm_Month", 
+remain <- c("X_id","Area_of_Origin","Neighborhood", "Intersection","geometry", "TFS_Alarm_Year", "TFS_Alarm_Month", 
             "TFS_Alarm_Date", "Area_Orgin_Case", "Fire_Type_Case", "Fire_Size_Case",
             "Status_of_Fire_On_Arrival", "Final_Incident_Type",
             "Number_of_responding_personnel", "Estimated_Dollar_Loss",
@@ -93,18 +93,50 @@ saveRDS(fire_incidents_trimmed, "app/data/Trimmed_Fire_Incidents.Rds")
 
 fireStation <- read.csv("app/data/Fire_Station_Locations.csv", header = T)
 
-saveRDS(fireStation, "data/Trimmed_Fire_Station.Rds")
+# Read map and dots of interest
+map <- readRDS("app/data/neighbourhood_shapefile.Rds")
+pntf <- data.frame(X = fireStation$Latitude, Y = fireStation$Longitude,
+                     ID = fireStation$ID) %>% na.omit() 
+  
+pnts_sf <- sf::st_as_sf(pntf, coords = c('Y', 'X'), crs = sf::st_crs(map))
+  
+pnts <- pnts_sf %>% dplyr::mutate(
+    intersection = as.integer(sf::st_intersects(pnts_sf$geometry, map))
+    , Neighborhood = if_else(is.na(intersection), '', map$AREA_NAME[intersection])
+) 
+  
+fireStation <- left_join(fireStation, pnts, by="ID") %>% filter(!is.na(Neighborhood)) %>% 
+  filter(Neighborhood != "")
+
+# Trim fire station data
+fireStation <- fireStation[,-which(names(fireStation) %in% c("geometry", "intersection"))]
+
+saveRDS(fireStation, "app/data/Trimmed_Fire_Station.Rds")
 
 ```
 
 ```{r neighbourhood}
 
 neighbourhood_Shape <- readRDS("app/data/neighbourhood_shapefile.Rds")
+population <- read.csv("app/data/Neighbourhood_Profiles.csv", header = T, stringsAsFactors = F)
+
+# Get total incidents
 fire_incidents_summary <- fire_incidents_trimmed %>% group_by(Neighborhood) %>%
-  summarise(num_incidents = n())
+  summarise(TOTAL_INCIDENTS = n())
 
 neighbourhoods <- merge(neighbourhood_Shape, fire_incidents_summary, by.x = "AREA_NAME", by.y="Neighborhood")
 
-saveRDS(neighbourhoods, "data/neighbourhoods_info.Rds")
+# Get total fire stations
+fire_station_summary <- fireStation %>% group_by(Neighborhood) %>%
+  summarise(TOTAL_STATION = n())
+
+neighbourhoods <- left_join(neighbourhoods, fire_station_summary, by = c("AREA_NAME" = "Neighborhood"))
+neighbourhoods[which(is.na(neighbourhoods$TOTAL_STATION)),]$TOTAL_STATION <- 0
+
+# Get population 
+neighbourhoods$AREA_SHORT_CODE <- as.numeric(neighbourhoods$AREA_SHORT_CODE)
+neighbourhoods <- merge(neighbourhoods, population, by = "AREA_SHORT_CODE")
+
+saveRDS(neighbourhoods, "app/data/neighbourhoods_info.Rds")
 
 ```

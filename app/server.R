@@ -59,16 +59,14 @@ shinyServer(function(input, output) {
         # Coloring
         colorData <- fire_Incidents_Filtered$Fire_Size_Case
         pal <- colorFactor("YlOrRd", colorData)
-        colorData_nbh <- neighbourhood_Shape$num_incidents
-        pal_nbh <- colorNumeric(c("#D7D8C9", "#57523E"), colorData_nbh)
+        colorData_nbh <- neighbourhood_Shape$TOTAL_INCIDENTS
+        pal_nbh <- colorNumeric(c("white", "grey"), colorData_nbh)
         
         log_Estimated <- log(fire_Incidents_Filtered$Estimated_Dollar_Loss) * 0.8
         
         leafletProxy("map", data = fire_Incidents_Filtered) %>% clearShapes() %>% clearMarkers() %>%
-            addPolygons(data = neighbourhood_Shape, 
-                        stroke = F, color = "Grey", weight = 1 ,opacity = .2, 
-                        layerId=~AREA_ID,
-                        fillOpacity = 0.3, fillColor=pal_nbh(colorData_nbh)) %>%
+            addPolygons(data = neighbourhood_Shape, stroke = T, color = "Grey", weight = 1 ,opacity = .2, 
+                        layerId=~AREA_ID, fillOpacity = 0.3, fillColor=pal_nbh(colorData_nbh)) %>%
             addMarkers(fire_Stations$Longitude, fire_Stations$Latitude, layerId=~fire_Stations$ID,
                        icon=makeIcon("icons/svg/008-firefighter helmet.svg", iconWidth = 25, iconHeight = 25)) %>%
             addCircleMarkers(~Longitude, ~Latitude, radius=log_Estimated, layerId=~X_id,
@@ -133,13 +131,13 @@ shinyServer(function(input, output) {
     showNeibourhoodPopup <- function(neigbourhoodSelected, id, lat, lng) { 
         
         content <- as.character(tagList(
-            tags$h4("Neibourhood:", neigbourhoodSelected$AREA_NAME),
+            tags$h4("Neibourhood:", neigbourhoodSelected$NEIBOURHOOD),
             tags$strong(HTML(sprintf("Location: %s, %s",lat, lng))), tags$br(),
-            sprintf("Current population: %s",lat), tags$br(),
-            sprintf("Total Area: %s sqft",lat), tags$br(),
-            sprintf("Population density: %s sqft",lat), tags$br(),
-            sprintf("Number of fire stations: %s ",lat), tags$br(),
-            sprintf("Total of incidents since 2011: %s",lat)
+            sprintf("Current population: %s", neigbourhoodSelected$POPULATION), tags$br(),
+            sprintf("Total Area: %s square km", neigbourhoodSelected$LAND_AREA_IN_SQKM), tags$br(),
+            sprintf("Population density: %s square km", neigbourhoodSelected$POPULATION_DENSITY_PER_SQKM), tags$br(),
+            sprintf("Number of fire stations: %s ", neigbourhoodSelected$TOTAL_STATION), tags$br(),
+            sprintf("Total of incidents since 2011: %s", neigbourhoodSelected$TOTAL_INCIDENTS)
         ))
         
         # set popups
@@ -151,18 +149,29 @@ shinyServer(function(input, output) {
     showPointPopup <- function(id, lat, lng) { 
         
         if (id > 1350000) {
+            
+            currentIncident <- fire_Incidents %>% filter(X_id == id)
+            
             content <- as.character(tagList(
                 tags$h4("Fire incident NO.", as.integer(id)),
-                tags$strong(HTML(sprintf("Location: %s, %s",
-                                         lat, lng
-                ))), tags$br()
+                tags$strong(HTML(sprintf("Location: %s, %s",lat, lng))), tags$br(),
+                tags$strong(HTML(sprintf("Intersection: %s",currentIncident$Intersection))), tags$br(),
+                sprintf("Fire type: %s", currentIncident$Fire_Type_Case), tags$br(),
+                sprintf("Fire size: %s", currentIncident$Fire_Size_Case), tags$br(),
+                sprintf("Original of fire: %s", currentIncident$Area_Orgin_Case), tags$br(),
+                sprintf("Financial loss: %s", currentIncident$Estimated_Dollar_Loss), tags$br(),
+                sprintf("Casualties: %s", currentIncident$Civilian_Casualties), tags$br(),
+                sprintf("Number of firefighters on site: %s", currentIncident$Number_of_responding_personnel), tags$br(),
+                sprintf("Date of Incident: %s", currentIncident$TFS_Alarm_Date)
             ))
         } else {
+            
+            currentStation <- fire_Stations %>% filter(ID == id)
+            
             content <- as.character(tagList(
-                tags$h4("Fire station NO.", as.integer(id)),
-                tags$strong(HTML(sprintf("Location: %s, %s",
-                                         lat, lng
-                ))), tags$br()
+                tags$h4(currentStation$NAME),
+                tags$strong(HTML(sprintf("Location: %s, %s",lat, lng))), tags$br(),
+                sprintf("Address: %s", currentStation$ADDRESS)
             ))
         }
         
@@ -182,8 +191,6 @@ shinyServer(function(input, output) {
         
         # Add current filtering to the gv
         global_varible$current_neibourhood <- neigbourhoodSelected$AREA_NAME
-        
-        neigbourhoodSelected$AREA_ID <- neigbourhoodSelected$AREA_ID * 100
             
         #Find binding box and change location
         #Add highlight

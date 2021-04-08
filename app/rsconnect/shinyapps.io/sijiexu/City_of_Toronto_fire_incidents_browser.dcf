@@ -5,6 +5,8 @@ account: sijiexu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3924121
-bundleId: 4442767
+bundleId: 4444222
 url: https://sijiexu.shinyapps.io/City_of_Toronto_fire_incidents_browser/
-when: 1617812698.60985
+when: 1617841185.88489
+asMultiple: FALSE
+asStatic: FALSE
