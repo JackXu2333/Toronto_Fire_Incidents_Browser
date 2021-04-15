@@ -62,6 +62,15 @@ or with command line:
 
     $ git clone https://github.com/JackXu2333/STA313_Final_Project.git
 
+Please follow the instructions below to use the fire browser:
+![Instructions](app/www/map-instructions.png) The [arrow
+illustration](https://www.freepik.com/premium-vector/black-arrows-hand-drawing_11877923.htm)
+& [pointer
+illustration](https://www.freepik.com/premium-vector/pointer-cursor-mouse-icon_6896206.htm#page=1&query=pointers&position=32)
+are used above. Also acknowledge that the fire station icon is made by
+<a href="https://www.freepik.com" title="Freepik">Freepik</a> from
+<a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+
 ## About Us <img src="app/www/logo.png" width="25" height="auto">
 
 Hi there, it’s the “Fancy Thoughts Squad”, students from the University

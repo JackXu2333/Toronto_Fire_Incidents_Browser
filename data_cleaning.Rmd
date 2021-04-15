@@ -64,6 +64,12 @@ pnts <- pnts_sf %>% dplyr::mutate(
 fire_incidents <- left_join(fire_incidents, pnts, by="X_id") %>% filter(!is.na(Neighborhood)) %>% 
   filter(Neighborhood != "")
 
+# date transformation
+TFS_Arrival_Time <- gsub("T", " ", fire_incidents$TFS_Arrival_Time) %>% as.POSIXct(format='%Y-%m-%d %H:%M:%OS')
+TFS_Alarm_Time <- gsub("T", " ", fire_incidents$TFS_Alarm_Time) %>% as.POSIXct(format='%Y-%m-%d %H:%M:%OS')
+
+fire_incidents$TFS_Response_Time <- difftime(TFS_Arrival_Time, TFS_Alarm_Time, units = "min") %>% as.numeric()
+
 # date manipulation
 fire_incidents$TFS_Alarm_Date <- gsub("T.*$", "", fire_incidents$TFS_Alarm_Time) %>% as.Date()
 fire_incidents$TFS_Alarm_Time <- gsub(".*T", "", fire_incidents$TFS_Alarm_Time) 
@@ -78,7 +84,7 @@ saveRDS(fire_incidents, "app/data/Cleaned_Fire_Incidents.Rds")
 ```{r fire_incidents_trim}
 
 remain <- c("X_id","Area_of_Origin","Neighborhood", "Intersection","geometry", "TFS_Alarm_Year", "TFS_Alarm_Month", 
-            "TFS_Alarm_Date", "Area_Orgin_Case", "Fire_Type_Case", "Fire_Size_Case",
+            "TFS_Alarm_Date", "TFS_Response_Time", "Area_Orgin_Case", "Fire_Type_Case", "Fire_Size_Case",
             "Status_of_Fire_On_Arrival", "Final_Incident_Type",
             "Number_of_responding_personnel", "Estimated_Dollar_Loss",
             "Latitude", "Longitude", "Civilian_Casualties")
@@ -118,24 +124,32 @@ saveRDS(fireStation, "app/data/Trimmed_Fire_Station.Rds")
 ```{r neighbourhood}
 
 neighbourhood_Shape <- readRDS("app/data/neighbourhood_shapefile.Rds")
-population <- read.csv("app/data/Neighbourhood_Profiles.csv", header = T, stringsAsFactors = F)
+population <- read.csv("app/data/Neighbourhood_Profiles.csv", 
+                       header = T, stringsAsFactors = F,
+                       colClasses=rep("numeric", 14))
 
 # Get total incidents
 fire_incidents_summary <- fire_incidents_trimmed %>% group_by(Neighborhood) %>%
-  summarise(TOTAL_INCIDENTS = n())
+  summarise(Total_Incidents = n(), Average_Response_Time = round(mean(TFS_Response_Time), 2), Average_Casualty = round(mean(Civilian_Casualties),2), Average_Financial_Loss = round(mean(Estimated_Dollar_Loss),2))
 
 neighbourhoods <- merge(neighbourhood_Shape, fire_incidents_summary, by.x = "AREA_NAME", by.y="Neighborhood")
 
 # Get total fire stations
 fire_station_summary <- fireStation %>% group_by(Neighborhood) %>%
-  summarise(TOTAL_STATION = n())
+  summarise(Total_Station = n())
 
 neighbourhoods <- left_join(neighbourhoods, fire_station_summary, by = c("AREA_NAME" = "Neighborhood"))
-neighbourhoods[which(is.na(neighbourhoods$TOTAL_STATION)),]$TOTAL_STATION <- 0
+neighbourhoods[which(is.na(neighbourhoods$Total_Station)),]$Total_Station <- 0
 
 # Get population 
-neighbourhoods$AREA_SHORT_CODE <- as.numeric(neighbourhoods$AREA_SHORT_CODE)
-neighbourhoods <- merge(neighbourhoods, population, by = "AREA_SHORT_CODE")
+neighbourhoods$Area_Short_Code <- as.numeric(neighbourhoods$AREA_SHORT_CODE)
+neighbourhoods <- merge(neighbourhoods, population, by = "Area_Short_Code")
+
+neighbourhoods <- neighbourhoods[,-which(names(neighbourhoods) %in% c("PARENT_AREA_ID", "_id", "X", "AREA_DESC", "AREA_SHORT_CODE",
+                                                                      "Y", "LONGITUDE", "LATITUDE", "AREA_LONG_CODE", 
+                                                                      "AREA_ATTR_ID", "CLASSIFICATION_CODE", "CLASSIFICATION"
+                                                                      ))] %>% na.omit()
+names(neighbourhoods)[2] <- "Area_Name"
 
 saveRDS(neighbourhoods, "app/data/neighbourhoods_info.Rds")
 

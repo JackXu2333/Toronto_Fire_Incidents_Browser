@@ -1,0 +1,193 @@
+---
+title: "Scatterplots"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Read fire Incidents file
+fire_Incidents <- readRDS("app/data/Trimmed_Fire_Incidents.Rds")
+fire_Stations <- readRDS("app/data/Trimmed_Fire_Station.Rds")
+neighbourhood_Shape <- readRDS("app/data/neighbourhoods_info.Rds")
+
+library(ggplot2)
+library(dplyr)
+library(sf)
+```
+
+## Topics
+
+* Average response time for incidents in the neighborhood (if takes longer means more stations should be built? Table? plot?)
+* Average response time vs neighborhood income (if poor take longer than something shou change)
+* Fire size vs number of personnel (if no trend means city should take more action to prioritize urgency)
+* High Casualty(3+,5+?) vs Income or high casualty vs dwelling density (means the area need more equipment if poor; or means area needs more inspection if more building gets more casualty)
+* Avg financial loss in each origin? (loss more ones would get discount from insurance if purchase fire equipment?)
+* Which neighborhoods have severe fires (large, extra large etc but least station)? Which has the most fire (but least station)?
+* Does a certain premise type area have more fire (commercial neighborhood, apartment, condo, houses etc)
+
+
+# Top options
+
+## Average response time
+
+```{r Average response time vs neighborhood income}
+
+#################################
+
+# Group by date
+fire_Incidents_Filtered <- fire_Incidents %>%
+  group_by(Neighborhood) %>%
+  summarise(Avaerge_Response_Time = mean(TFS_Response_Time), .groups = 'drop') %>%
+  na.omit()
+
+fire_Incidents_Filtered <- merge(fire_Incidents_Filtered, neighbourhood_Shape, by.y = "AREA_NAME", by.x="Neighborhood")
+
+# Plot the scatter plot
+plot_title <- "Average response time vs Usual Density"
+
+ggplot(fire_Incidents_Filtered, aes(x=DWELLINGS_OCCUPIED_BY_USUAL_RESIDENTS/LAND_AREA_IN_SQKM, y=Avaerge_Response_Time)) + 
+  geom_point()+ ggtitle(plot_title)+ coord_flip()+
+  xlab("Usual Density")+ ylab("Avaerge Response Time")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+plot_title <- "Average response time vs Average Household Sizes"
+
+ggplot(fire_Incidents_Filtered, aes(x=AVERAGE_HOUSRHOD_SIZE, y=Avaerge_Response_Time)) + 
+  geom_point()+ ggtitle(plot_title)+ coord_flip()+
+  xlab("Average households ")+ ylab("Avaerge Response Time")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+```
+## Casualty
+
+```{r High Casualty(3+,5+?) vs Income or high casualty vs dwelling density}
+
+# Group by date
+fire_Incidents_Filtered <- fire_Incidents %>%
+  group_by(Neighborhood) %>%
+  summarise(Avaerge_Casualty = mean(Civilian_Casualties), .groups = 'drop') %>%
+  na.omit()
+
+fire_Incidents_Filtered <- merge(fire_Incidents_Filtered, neighbourhood_Shape, by.y = "AREA_NAME", by.x="Neighborhood")
+
+# Plot the scatter plot
+plot_title <- "Average Casualty vs Population Density"
+
+ggplot(fire_Incidents_Filtered, aes(x=Avaerge_Casualty, y=POPULATION_DENSITY_PER_SQKM)) + 
+  geom_point()+ ggtitle(plot_title)+
+  xlab("Average Casualty")+ ylab("Population Density")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+# Plot the scatter plot
+plot_title <- "Average Casualty vs Dwellings Density by Neibourghood Sizes"
+
+ggplot(fire_Incidents_Filtered, aes(x=Avaerge_Casualty, y=DWELLINGS_OCCUPIED_BY_USUAL_RESIDENTS/LAND_AREA_IN_SQKM)) + 
+  geom_point()+ ggtitle(plot_title)+geom_smooth(stat = 'smooth',method = 'loess', formula = y ~ x)+
+  xlab("Average Casualty")+ ylab("Dwellings Density by Neibourghood Sizes")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+# Plot the scatter plot
+plot_title <- "Average Casualty vs Percentage Residents with No Certificate"
+
+ggplot(fire_Incidents_Filtered, aes(x=Avaerge_Casualty, y=PERCENTAGE_NO_CERTIFICATE_DIPLOMA)) + 
+  geom_point()+ ggtitle(plot_title)+geom_smooth(stat = 'smooth',method = 'loess', formula = y ~ x)+
+  xlab("Average Casualty")+ ylab("Percentage Residents with No Certificate")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+```
+## Avg financial loss
+
+```{r Avg financial loss in each origin?}
+
+# Group by date
+fire_Incidents_Filtered <- fire_Incidents %>%
+  group_by(Neighborhood) %>%
+  summarise(Average_Financial_Loss = mean(Estimated_Dollar_Loss), .groups = 'drop') %>%
+  na.omit()
+
+fire_Incidents_Filtered <- merge(fire_Incidents_Filtered, neighbourhood_Shape, by.y = "AREA_NAME", by.x="Neighborhood")
+
+# Plot the scatter plot
+plot_title <- "Average Financial Loss vs Average Household Income"
+
+ggplot(fire_Incidents_Filtered, aes(y=AVERAGE_HOUSEHOLD_INCOME, x=Average_Financial_Loss)) + 
+  geom_point()+ ggtitle(plot_title)+ geom_smooth(stat = 'smooth',method = 'loess', formula = y ~ x)+
+  xlab("Average_Financial_Loss")+ ylab("AVERAGE_HOUSEHOLD_INCOME")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+# Plot the scatter plot
+plot_title <- "Average Financial Loss vs Average Household Size"
+
+ggplot(fire_Incidents_Filtered, aes(y=AVERAGE_HOUSRHOD_SIZE, x=Average_Financial_Loss)) + 
+  geom_point()+ ggtitle(plot_title)+ geom_smooth(stat = 'smooth',method = 'loess', formula = y ~ x)+
+  xlab("Average Financial Loss")+ ylab("Average Household Size")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+```
+## Total Incidents
+
+```{r Which neighborhoods have severe fires (large, extra large etc but least station)? Which has the most fire (but least station)?}
+
+
+plot_title <- "Total Incidents vs Total Stations"
+
+ggplot(neighbourhood_Shape, aes(x=TOTAL_STATION, y=TOTAL_INCIDENTS)) + 
+  geom_point()+ ggtitle(plot_title)+ coord_flip()+
+  xlab("TOTAL_STATION")+ ylab("TOTAL_INCIDENTS")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+plot_title <- "Total Incidents vs Population Density"
+
+ggplot(neighbourhood_Shape, aes(x=POPULATION_DENSITY_PER_SQKM, y=TOTAL_INCIDENTS)) + 
+  geom_point()+ ggtitle(plot_title)+ coord_flip()+
+  xlab("Population Density")+ ylab("TOTAL_INCIDENTS")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+```
+# Other Options
+
+```{r Fire size vs number of personnel}
+
+# Plot the scatter plot
+plot_title <- "Fire size vs number of personnel"
+
+ggplot(fire_Incidents, aes(x=Fire_Size_Case, y=Number_of_responding_personnel)) + 
+  geom_bar(stat='identity')+ ggtitle(plot_title)+ coord_flip()+
+  xlab("Fire Size")+ ylab("Number of responding personnel")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+```
+
+```{r Average response time for incidents in the neighborhood}
+
+# Group by date
+fire_Incidents_Filtered <- fire_Incidents %>%
+  group_by(Neighborhood) %>%
+  summarise(Avaerge_Response_Time = mean(TFS_Response_Time), .groups = 'drop') %>%
+  na.omit()
+
+fire_Incidents_Filtered <- fire_Incidents_Filtered[which(order(fire_Incidents_Filtered$Avaerge_Response_Time) < 10), ]
+
+# Plot the scatter plot
+plot_title <- "Average response time for incidents top 40"
+
+ggplot(fire_Incidents_Filtered, aes(x=Neighborhood, y=Avaerge_Response_Time)) + 
+  geom_bar(stat='identity')+ ggtitle(plot_title)+ coord_flip()+
+  xlab("Neighborhood")+ ylab("Avaerge Response Time")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+
+fire_Incidents_Filtered
+
+```
+
+```{r Does a certain premise type area have more fire}
+
+plot_title <- "Does a certain premise type area have more fire?"
+
+ggplot(fire_Incidents, aes(x=Area_Orgin_Case)) + 
+  geom_bar()+ ggtitle(plot_title)+ coord_flip()+
+  xlab("Area_Orgin_Case")+ ylab("TOTAL_INCIDENTS")+
+  theme(plot.title = element_text(color="Black", size=14, face="bold"))
+```
