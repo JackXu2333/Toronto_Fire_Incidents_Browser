@@ -11,7 +11,7 @@ shinyServer(function(input, output, session) {
     
     # the modal dialog where the user can enter the query details.
     geo_modal <- modalDialog(
-        title = "Welcome to City of Toronto Fire Incidents Browswers",
+        title = "Welcome to City of Toronto Fire Incidents Browser",
         p(geo_Intro_Text), br(),
         img(src = "map-instructions.png", width = "100%", height = "auto"),
         easyClose = F,
