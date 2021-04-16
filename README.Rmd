@@ -40,6 +40,19 @@ The [arrow illustration](https://www.freepik.com/premium-vector/black-arrows-han
 
 Hi there, it's the "Fancy Thoughts Squad", students from the University of Toronto teaming up for the STA313 final assignment. Hope anyone who read this will have a "fancy" day (?)... I guess? 
 
+## Referrence
+
+* Eric Bailey (2015). shinyBS: Twitter Bootstrap Components for Shiny. R package version 0.61. https://CRAN.R-project.org/package=shinyBS
+* Hadley Wickham, Romain François, Lionel Henry and Kirill Müller (2020). dplyr: A Grammar of Data Manipulation. R package version 1.0.2. https://CRAN.R-project.org/package=dplyr
+* H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+* Joe Cheng, Bhaskar Karambelkar and Yihui Xie (2021). leaflet: Create Interactive Web Maps with the JavaScript 'Leaflet' Library. R package version 2.0.4.1. https://CRAN.R-project.org/package=leaflet
+* Victor Perrier, Fanny Meyer and David Granjon (2021). shinyWidgets: Custom Inputs Widgets for Shiny. R package version 0.6.0. https://CRAN.R-project.org/package=shinyWidgets
+* Winston Chang, Joe Cheng, JJ Allaire, Carson Sievert, Barret Schloerke, Yihui Xie, Jeff Allen, Jonathan McPherson, Alan Dipert and Barbara Borges (2021). shiny: Web Application Framework for R. R package version 1.6.0. https://CRAN.R-project.org/package=shiny
+* Statistics Canada. 2017. Toronto [Census metropolitan area], Ontario and Ontario [Province] (table). Census Profile. 2016 Census. Statistics Canada Catalogue no. 98-316-X2016001. Ottawa. Released November 29, 2017.
+https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/prof/index.cfm?Lang=E.
+* Sharla Gelfand (2020). opendatatoronto: Access the City of Toronto Open Data Portal. R package version 0.1.4. https://CRAN.R-project.org/package=opendatatoronto
+* Yihui Xie, Joe Cheng and Xianying Tan (2021). DT: A Wrapper of the JavaScript Library 'DataTables'. R package version 0.18. https://CRAN.R-project.org/package=DT
+
 
 >*Toronto Fire Incidents (2011-2019) (c) by Sijie Xu*
 *Toronto Fire Incidents (2011-2019) is licensed under a Creative Commons Attribution 4.0 International License.*

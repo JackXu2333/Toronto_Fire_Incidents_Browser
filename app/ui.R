@@ -1,7 +1,6 @@
 source("init.R")
 library(shiny)
 library(shinyWidgets)
-library(shinydashboard)
 library(shinyBS)
 library(dplyr)
 library(leaflet)
@@ -28,7 +27,7 @@ mapSideBar <- absolutePanel(id = "controls", class = "panel panel-default", drag
                          
                          # slider for selecting the origin of fire
                          pickerInput("Area_Origin",
-                                     label = h4("Orgin of Fire", bsButton("s3", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
+                                     label = h4("Origin of Fire", bsButton("s3", class = "info", label = "", icon = icon("question"), style = "info", size = "extra-small")),
                                      choices = area_Origin_Choice, multiple = TRUE, selected = seq(1,4),
                                      options = list(`actions-box` = TRUE)),
                          bsPopover(id = "s3", title = "Orgin of Fire", placement = "top",content =  origin_of_Fire_Info),
@@ -83,6 +82,8 @@ mapSideBar <- absolutePanel(id = "controls", class = "panel panel-default", drag
                          ),
                          bsPopover(id = "s9", title = "Show Neighbourhoods", placement = "top", content =  Nbh_Background_Checkbox_Info),
                          
+                         div(style = "margin-top:-15px"),
+                         
                          # Refresh
                          actionButton("Refresh", "Load Settings", class = "btn-primary"),
                          actionButton("Zoom_Out", "Reset View")
@@ -91,6 +92,10 @@ mapSideBar <- absolutePanel(id = "controls", class = "panel panel-default", drag
 
 # Define UI for application that draws a histogram
 shinyUI(
+  
+  fluidPage(
+    tags$head(HTML("<title>Toronto Fire Incidents Browser</title> <link rel='icon' type='image/gif/png' href='logo.png'>")),
+  
     navbarPage(div(img(id = "logo", src="logo.png"), "Fancy Thoughts"), id="nav", 
                
                tabPanel("Interactive Map",
@@ -144,20 +149,20 @@ shinyUI(
                                                        choices = scatter_Y_Choice, selected = 1),
                                            bsPopover(id = "x2", title = "Dependent Varibles",placement = "left",content =  Dependent_Varibles_Info),
                                            
-                                           prettyCheckbox(
-                                             inputId = "show_MA_Checkbox", label = p("Show Moving Average"), value = F,icon = icon("check")
+                                           checkboxInput(
+                                             inputId = "show_MA_Checkbox", label = p("Show Moving Average"), value = F
                                            ),
                                            
                                            div(style = "margin-top:-15px"),
                                            
-                                           prettyCheckbox(
-                                             inputId = "show_LM_Checkbox", label = p("Show Linear Model"), value = T,icon = icon("check")
+                                           checkboxInput(
+                                             inputId = "show_LM_Checkbox", label = p("Show Linear Model"), value = T
                                            ),
                                            
                                            div(style = "margin-top:-15px"),
                                            
-                                           prettyCheckbox(
-                                             inputId = "x_log_Checkbox", label = p("Show X Axis in Log Scale"), value = F,icon = icon("check")
+                                           checkboxInput(
+                                             inputId = "x_log_Checkbox", label = p("Show X Axis in Log Scale"), value = F
                                            ),
                                            
                                            circle = F, status = "info",
@@ -180,4 +185,5 @@ shinyUI(
                         
                )
     )
+  )
 )

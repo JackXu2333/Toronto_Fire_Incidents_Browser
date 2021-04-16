@@ -52,11 +52,10 @@ names(scatter_X_Choice) <- scatter_X_Table$varible
 scatter_Y_Choice <- seq(1:length(scatter_Y_Table$varible))
 names(scatter_Y_Choice) <- scatter_Y_Table$varible
 
-geo_Intro_Text <- "Welcome to our project, “Fire Incident Browser in the City of Toronto and its Surrounding Neighborhoods”. 
-We are the Fancy Thoughts Squad.] This project aims to inform the city planners and the fire department about details 
-of fire incidents in the City of Toronto. More specifically, this visualization is designed to help city planners and 
-the fire department to decide where additional fire stations should be built within the city, to reduce the number of fire incidents or minimize loss from such.
-To view the detailed data attributes of each fire incident and neighbourhoods, Please click on the Data Explorer tab on the top."
+geo_Intro_Text <- HTML(paste("Welcome to our project, “Fire Incident Browser in the City of Toronto and its Surrounding Neighborhoods”. We are the Fancy Thoughts Squad.",
+" This project aims to inform the city planners and the fire department about details of fire incidents in the City of Toronto. 
+More specifically, this visualization is designed to help city planners and the fire department to decide where additional fire stations 
+should be built within the city, to reduce the number of fire incidents or minimize loss from such.", sep = "<br/><br/>"))
 
 data_Intro_Text <- "Welcome to the data explorer tools for Fire Incident Browser in the City of Toronto; in this tab, you can navigate freely through the detailed
 data attributes of each fire incident and neighborhoods. You may also explore the correlations between fire incidents and characteristics of the Neighborhoods! 
@@ -89,9 +88,22 @@ Fire_Station_Checkbox_Info <- "Show fire stations on the map, click on the fire 
   
 Nbh_Background_Checkbox_Info <- "Show the border line of each neighborhood on the map, as well as the fire incidents density by the land area under current filter settings,  click any points within neighborhoods to zoom in and view details regarding the neighbourhood of interest"
 
-Independent_Varibles_Info <- paste("Select the manipulated variables that may coorlated with the fire incidents", sep = "<br>")
+Dependent_Varibles_Info <- paste("Select the responding variables that summarize the fire incidents in each neighborhoods","1. Average Response Time - the average of the firefighters response time (time duration from initial alarm time till arrival time)",
+                                 "2. Average Casualty - the average number of casualties","3. Average Financial Loss - the average losses from each incidents in Canadian dollar", sep = "<br>")
 
-Dependent_Varibles_Info <-  paste("Select the responding variables that summarize the fire incidents in each neighborhoods",
-                                  "1. Average Response Time, the average of the firefighters' response time (time duration from initial alarm time till arrival time)", 
-                                  "2. Average Casualty, the average number of casualties" ,
-                                  "3. Average Financial Loss, the average losses from each incidents in Canadian dollar", sep = "<br>")
+Independent_Varibles_Info <- paste("Select the manipulated variables that may coorlated with the fire incidents", 
+                                   "1. Total Incidents - Total number of incidents (2011-2019)", 
+                                   "2. Total Fire Stations - Total number of operating fire stations", 
+                                   "3. Population - Last recorded population (2016)", 
+                                   "4. Land Area - Land area in square km", 
+                                   "5. Population Density - Population by land area", 
+                                   "6. Total Dwellings Area Occupied - Dwellings area occupied in square km", 
+                                   "7. Average Household Size - Average of number people in a household",
+                                   "8. Average Household Income - Average of household income in Canadian Dollar", 
+                                   "9. Average Personal Income - Average of personal income in Canadian Dollar", 
+                                   "10.Percentage Person Living Alone - Percentage of person living alone",
+                                   "11.Percentage Low Income Population - Percentage of low income population ", 
+                                   "12.Percentage Population Without Diploma - Percentage of population without diploma",
+                                    sep = "<br>")
+
+

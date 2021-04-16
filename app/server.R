@@ -21,7 +21,8 @@ shinyServer(function(input, output, session) {
     data_modal <- modalDialog(
         title = "Welcome to City of Toronto Fire Incidents Data Explorer",
         p(data_Intro_Text),
-        easyClose = F
+        easyClose = F,
+        size = "l"
     )
     
     # Show the model on start up ...
@@ -78,7 +79,7 @@ shinyServer(function(input, output, session) {
             
             # Calculate current incidents
             current_Incidents <- fire_Incidents_Filtered %>% group_by(Neighborhood) %>% summarise(Current_Incidents = n(), .groups = 'drop')
-            neighbourhood_Shape_current <- left_join(neighbourhood_Shape_Info, current_Incidents, by = c("Area_Name" = "Neighborhood"))
+            neighbourhood_Shape_current <- left_join(neighbourhood_Shape, current_Incidents, by = c("Area_Name" = "Neighborhood"))
             if (sum(is.na(neighbourhood_Shape_current$Current_Incidents)) != 0) {
             neighbourhood_Shape_current[which(is.na(neighbourhood_Shape_current$Current_Incidents)),]$Current_Incidents <- 0}
             
@@ -314,7 +315,7 @@ shinyServer(function(input, output, session) {
             HTML(paste("The linear model fitted above is", 
                        tags$b(sprintf("%s = %.2f * %s + %.2f ", vy.value, fit_coefficients[2], vx.value, fit_coefficients[1])), 
                        sprintf("in which the p-value for coefficient is < %.2f, and intersect is < %.2f", fit_coefficients[8], fit_coefficients[7]),
-                       sprintf("* The model shows that for increase in 1 unit of %s, %s will increase by %.2f", vx.value, vy.value, fit_coefficients[2]),
+                       sprintf("* The model shows that for increase in 1 unit of %s, %s will change by %.2f", vx.value, vy.value, fit_coefficients[2]),
                        sep = "<br/>")
             )
         }

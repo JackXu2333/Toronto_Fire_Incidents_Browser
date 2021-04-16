@@ -4,7 +4,7 @@ input[type="number"] {
 
 .outer {
   position: fixed;
-  top: 20px;
+  top: 40px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -20,9 +20,14 @@ input[type="number"] {
 /* Customize fonts */
 body, label, input, button, select, p { 
   font-family: 'Helvetica Neue', Helvetica;
-  font-weight: 200;
+  font-weight: normal;
 }
-h1, h2, h3, h4, h5, h6, p { font-weight: 300; margin-bottom: 0px; zoom: 0.9;}
+h1, h2, h3, h4, h5, h6 { font-weight: normal; margin-bottom: 0px; zoom: 0.9;}
+
+#title_icon {
+ 
+  visibility: hidden;
+}
 
 #controls {
   /* Appearance */
