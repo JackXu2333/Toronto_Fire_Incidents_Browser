@@ -59,8 +59,6 @@ The interactive web app can be visit via
 Alternatively, you could run the **fire incidents shiny app** in R from 
 the [github repo](https://github.com/JackXu2333/STA313_Final_Project) 
 
-## Instructions
-
 Please follow the instructions below to use the fire browser:
 ![Instructions](app/www/map-instructions.png) The [arrow
 illustration](https://www.freepik.com/premium-vector/black-arrows-hand-drawing_11877923.htm)
