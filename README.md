@@ -56,11 +56,10 @@ everything.
 The interactive web app can be visit via
 [shiny.io](https://sijiexu.shinyapps.io/City_of_Toronto_fire_incidents_browser/)
 
-Alternatively, you could run the **fire incidents shiny app** is pulling
-the [github repo](https://github.com/JackXu2333/STA313_Final_Project),
-or with command line:
+Alternatively, you could run the **fire incidents shiny app** in R from 
+the [github repo](https://github.com/JackXu2333/STA313_Final_Project) 
 
-    $ git clone https://github.com/JackXu2333/STA313_Final_Project.git
+## Instructions
 
 Please follow the instructions below to use the fire browser:
 ![Instructions](app/www/map-instructions.png) The [arrow
